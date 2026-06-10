@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>複利存摺計算機</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#10382c;
+  --ink-soft:#3d6557;
+  --paper:#fbfaf4;
+  --line:#d8d2bf;
+  --gold:#b8860b;
+  --red:#a4373a;
+  --white:#ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--ink);}
+body{
+  font-family:'Noto Sans TC',-apple-system,'PingFang TC',sans-serif;
+  color:var(--ink);
+  display:flex;justify-content:center;
+  padding:env(safe-area-inset-top) 0 32px;
+}
+.book{width:100%;max-width:430px;}
+
+.cover{color:var(--paper);padding:26px 22px 18px;}
+.cover .bank{
+  font-size:12px;letter-spacing:.35em;opacity:.75;
+  display:flex;align-items:center;gap:10px;
+}
+.cover .bank::after{content:"";flex:1;height:1px;background:rgba(251,250,244,.3);}
+.cover h1{font-family:'Noto Serif TC',serif;font-weight:700;font-size:26px;letter-spacing:.08em;margin-top:10px;}
+.cover .note{font-size:13px;opacity:.7;margin-top:6px;line-height:1.6;}
+
+.page{
+  background:var(--paper);
+  border-radius:18px 18px 14px 14px;
+  box-shadow:0 -2px 0 rgba(0,0,0,.15) inset, 0 14px 30px rgba(0,0,0,.35);
+  overflow:hidden;
+}
+
+.planbar{
+  text-align:center;padding:13px 0 11px;
+  border-bottom:3px solid var(--gold);
+  background:rgba(184,134,11,.06);
+  font-size:14px;font-weight:500;color:var(--ink);
+}
+.planbar b{display:block;font-size:17px;font-weight:700;}
+
+.meta{
+  display:flex;justify-content:space-between;gap:8px;
+  padding:12px 18px;border-bottom:1px dashed var(--line);
+  font-size:12.5px;color:var(--ink-soft);
+}
+.meta b{color:var(--ink);font-variant-numeric:tabular-nums;}
+
+.query{padding:14px 18px 4px;}
+.query label{font-size:12px;color:var(--ink-soft);letter-spacing:.15em;display:block;margin-bottom:6px;}
+.query input[type=date]{
+  width:100%;font-family:inherit;font-size:18px;font-weight:700;color:var(--ink);
+  padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--white);
+  min-height:48px;
+}
+.query input:focus{outline:2px solid var(--gold);outline-offset:1px;}
+.quick{display:flex;gap:8px;margin-top:8px;}
+.qbtn{
+  flex:1;padding:9px 0;border-radius:9px;border:1px solid var(--line);
+  background:var(--white);color:var(--ink-soft);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;
+}
+.qbtn:active{background:rgba(184,134,11,.1);}
+
+.balance{
+  margin:14px 18px;padding:18px 16px 16px;
+  border:1.5px solid var(--ink);border-radius:12px;
+  background:var(--white);position:relative;text-align:center;
+}
+.balance .tag{font-size:12px;letter-spacing:.25em;color:var(--ink-soft);}
+.balance .rocdate{font-size:13px;color:var(--ink-soft);margin-top:2px;font-variant-numeric:tabular-nums;}
+.balance .amt{
+  font-family:'Noto Serif TC',serif;font-size:36px;font-weight:700;
+  margin-top:4px;font-variant-numeric:tabular-nums;
+}
+.balance .amt small{font-size:16px;font-weight:600;margin-right:2px;}
+.balance .grow{font-size:13px;color:var(--gold);font-weight:700;margin-top:4px;min-height:1.4em;}
+.stamp{
+  position:absolute;top:10px;right:10px;width:46px;height:46px;
+  border:2px solid var(--red);border-radius:50%;color:var(--red);
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  text-align:center;line-height:1.25;transform:rotate(-12deg);opacity:.8;
+  font-family:'Noto Serif TC',serif;
+}
+
+.summary{padding:0 18px 8px;}
+.srow{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:9px 2px;border-bottom:1px dashed var(--line);font-size:14px;color:var(--ink-soft);
+}
+.srow b{color:var(--ink);font-size:15px;font-variant-numeric:tabular-nums;}
+.srow b.gold{color:var(--gold);}
+
+.ledger{padding:10px 18px 20px;}
+.ledger .ltitle{
+  font-size:12px;letter-spacing:.3em;color:var(--ink-soft);
+  display:flex;align-items:center;gap:10px;margin-bottom:8px;
+}
+.ledger .ltitle::before,.ledger .ltitle::after{content:"";flex:1;height:1px;background:var(--line);}
+.scroll{max-height:340px;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:10px;background:var(--white);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{
+  position:sticky;top:0;background:var(--paper);z-index:1;
+  font-weight:500;color:var(--ink-soft);text-align:right;
+  padding:8px 10px;border-bottom:1.5px solid var(--ink);font-size:12px;
+}
+thead th:first-child{text-align:left;}
+td{
+  text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);
+  font-variant-numeric:tabular-nums;
+}
+td:first-child{text-align:left;color:var(--ink-soft);}
+td.gold{color:var(--gold);}
+tr.now{background:rgba(184,134,11,.13);}
+tr.now td:first-child{font-weight:700;color:var(--ink);}
+tr.maturity td{font-weight:700;border-top:2px double var(--ink);}
+.foot{padding:0 18px 18px;font-size:11.5px;color:var(--ink-soft);line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="book">
+  <div class="cover">
+    <div class="bank">利 滾 利 專 戶</div>
+    <h1>複利存摺計算機</h1>
+    <div class="note">起存日 民國 115/6/10 ・ 本金 NT$1,000,000<br>每月 10 日計息一次，利息滾入本金（月複利）。</div>
+  </div>
+
+  <div class="page">
+    <div class="planbar">六年期<b>年息 3.6%　固定計息</b></div>
+
+    <div class="meta">
+      <span>起存 <b>115/6/10</b></span>
+      <span>到期 <b id="matureDate">121/6/10</b></span>
+      <span>共 <b id="totalPosts">72</b> 次計息</span>
+    </div>
+
+    <noscript><div style="margin:12px 18px 0;padding:10px 12px;border:1px dashed #b8860b;border-radius:10px;font-size:12.5px;color:#3d6557;">目前為靜態預覽，顯示到期數字與完整明細。想用日期查詢功能，請改用 Safari / Chrome 開啟。</div></noscript>
+    <div class="query">
+      <label>查 詢 日 期</label>
+      <input type="date" id="qDate" min="2026-06-10" max="2032-06-10" value="2026-06-10">
+      <div class="quick">
+        <button type="button" class="qbtn" id="btnM1">下個月</button>
+        <button type="button" class="qbtn" id="btnY1">一年後</button>
+        <button type="button" class="qbtn" id="btnY3">三年後</button>
+        <button type="button" class="qbtn" id="btnEnd">到期日</button>
+      </div>
+    </div>
+
+    <div class="balance">
+      <div class="stamp">複利<br>專戶</div>
+      <div class="tag">帳 上 結 餘</div>
+      <div class="rocdate" id="outDate">民國 115/6/10（起存日）</div>
+      <div class="amt"><small>NT$</small><span id="outBal">1,000,000</span></div>
+      <div class="grow" id="outGrow">第一次計息日為 115/7/10</div>
+    </div>
+
+    <div class="summary">
+      <div class="srow"><span>已計息次數</span><b id="outN">0 次</b></div>
+      <div class="srow"><span>累計利息</span><b class="gold" id="outInt">NT$0</b></div>
+      <div class="srow"><span>下次計息日</span><b id="outNext">115/7/10（+3,000）</b></div>
+      <div class="srow"><span>到期結餘</span><b id="outFinal">NT$1,240,703</b></div>
+    </div>
+
+    <div class="ledger">
+      <div class="ltitle">計 息 明 細</div>
+      <div class="scroll" id="scrollBox">
+        <table>
+          <thead><tr><th>計息日</th><th>當次利息</th><th>結餘</th></tr></thead>
+          <tbody id="tbody"><tr><td colspan="3" style="text-align:center;color:#999;padding:14px;">選擇日期後顯示明細</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="foot">
+      ※ 每月 10 日計息：結餘 ×（3.6% ÷ 12），四捨五入至整數元後滾入。<br>
+      ※ 查詢日期未滿下一個 10 日者，以最近一次計息後結餘顯示。<br>
+      ※ 滿期 121/6/10 本利和 NT$1,240,703，實際給付以雙方契約為準。
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function fmt(n){
+    var s=String(n), out='', c=0;
+    for(var i=s.length-1;i>=0;i--){ out=s.charAt(i)+out; c++; if(c%3===0 && i>0) out=','+out; }
+    return out;
+  }
+  function roc(d){ return (d.getFullYear()-1911)+'/'+(d.getMonth()+1)+'/'+d.getDate(); }
+  function addM(k){ return new Date(2026,5+k,10); }
+  function iso(d){
+    var m=d.getMonth()+1, dd=d.getDate();
+    return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dd<10?'0':'')+dd;
+  }
+
+  var P=1000000, N=72, schedule=[], bal=P;
+  for(var k=1;k<=N;k++){
+    var i=Math.round(bal*0.003);
+    bal+=i;
+    schedule.push({k:k,date:addM(k),interest:i,balance:bal});
+  }
+  var START=addM(0), END=addM(N);
+
+  function calc(){
+    var v=$('qDate').value;
+    var q=v?new Date(v+'T00:00:00'):new Date();
+    if(isNaN(q.getTime())) q=new Date();
+    if(q<START){ q=START; $('qDate').value=iso(START); }
+    if(q>END){ q=END; $('qDate').value=iso(END); }
+
+    var last=null;
+    for(var j=0;j<schedule.length;j++){
+      if(schedule[j].date<=q) last=schedule[j]; else break;
+    }
+    var b=last?last.balance:P;
+    var n=last?last.k:0;
+    var next=(n<N)?schedule[n]:null;
+
+    $('outDate').textContent='民國 '+roc(q);
+    $('outBal').textContent=fmt(b);
+    $('outGrow').textContent = n>0 ? '較本金增加 NT$'+fmt(b-P) : '尚未到第一次計息日（115/7/10）';
+    $('outN').textContent=n+' 次';
+    $('outInt').textContent='NT$'+fmt(b-P);
+    $('outNext').textContent= next ? roc(next.date)+'（+'+fmt(next.interest)+'）' : '已到期';
+
+    var rows='';
+    for(var j=0;j<schedule.length;j++){
+      var s=schedule[j], cls='';
+      if(last && s.k===last.k) cls='now';
+      if(s.k===N) cls+=(cls?' ':'')+'maturity';
+      rows+='<tr'+(cls?' class="'+cls+'"':'')+'><td>'+roc(s.date)+'</td><td class="gold">+'+fmt(s.interest)+'</td><td>'+fmt(s.balance)+'</td></tr>';
+    }
+    $('tbody').innerHTML=rows;
+
+    var nowRow=document.querySelector('tr.now');
+    if(nowRow) $('scrollBox').scrollTop=Math.max(0,nowRow.offsetTop-120);
+    else $('scrollBox').scrollTop=0;
+  }
+
+  function init(){
+    $('qDate').addEventListener('change',calc);
+    $('btnM1').addEventListener('click',function(){ $('qDate').value=iso(addM(1)); calc(); });
+    $('btnY1').addEventListener('click',function(){ $('qDate').value=iso(addM(12)); calc(); });
+    $('btnY3').addEventListener('click',function(){ $('qDate').value=iso(addM(36)); calc(); });
+    $('btnEnd').addEventListener('click',function(){ $('qDate').value=iso(END); calc(); });
+    var today=new Date();
+    $('qDate').value=iso(today<START?START:(today>END?END:today));
+    calc();
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
+</body>
+</html>
