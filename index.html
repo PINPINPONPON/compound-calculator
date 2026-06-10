@@ -135,18 +135,18 @@ tr.maturity td{font-weight:700;border-top:2px double var(--ink);}
   </div>
 
   <div class="page">
-    <div class="planbar">六年期<b>年息 3.6%　固定計息</b></div>
+    <div class="planbar">十年期<b>年息 3.6%　固定計息</b></div>
 
     <div class="meta">
       <span>起存 <b>115/6/10</b></span>
-      <span>到期 <b id="matureDate">121/6/10</b></span>
-      <span>共 <b id="totalPosts">72</b> 次計息</span>
+      <span>到期 <b id="matureDate">125/6/10</b></span>
+      <span>共 <b id="totalPosts">120</b> 次計息</span>
     </div>
 
     <noscript><div style="margin:12px 18px 0;padding:10px 12px;border:1px dashed #b8860b;border-radius:10px;font-size:12.5px;color:#3d6557;">目前為靜態預覽，顯示到期數字與完整明細。想用日期查詢功能，請改用 Safari / Chrome 開啟。</div></noscript>
     <div class="query">
       <label>查 詢 日 期</label>
-      <input type="date" id="qDate" min="2026-06-10" max="2032-06-10" value="2026-06-10">
+      <input type="date" id="qDate" min="2026-06-10" max="2036-06-10" value="2026-06-10">
       <div class="quick">
         <button type="button" class="qbtn" id="btnM1">下個月</button>
         <button type="button" class="qbtn" id="btnY1">一年後</button>
@@ -167,7 +167,7 @@ tr.maturity td{font-weight:700;border-top:2px double var(--ink);}
       <div class="srow"><span>已計息次數</span><b id="outN">0 次</b></div>
       <div class="srow"><span>累計利息</span><b class="gold" id="outInt">NT$0</b></div>
       <div class="srow"><span>下次計息日</span><b id="outNext">115/7/10（+3,000）</b></div>
-      <div class="srow"><span>到期結餘</span><b id="outFinal">NT$1,240,703</b></div>
+      <div class="srow"><span>到期結餘</span><b id="outFinal">NT$1,432,563</b></div>
     </div>
 
     <div class="ledger">
@@ -183,7 +183,7 @@ tr.maturity td{font-weight:700;border-top:2px double var(--ink);}
     <div class="foot">
       ※ 每月 10 日計息：結餘 ×（3.6% ÷ 12），四捨五入至整數元後滾入。<br>
       ※ 查詢日期未滿下一個 10 日者，以最近一次計息後結餘顯示。<br>
-      ※ 滿期 121/6/10 本利和 NT$1,240,703，實際給付以雙方契約為準。
+      ※ 滿期 125/6/10 本利和 NT$1,432,563，實際給付以雙方契約為準。
     </div>
   </div>
 </div>
@@ -203,7 +203,7 @@ tr.maturity td{font-weight:700;border-top:2px double var(--ink);}
     return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dd<10?'0':'')+dd;
   }
 
-  var P=1000000, N=72, schedule=[], bal=P;
+  var P=1000000, N=120, schedule=[], bal=P;
   for(var k=1;k<=N;k++){
     var i=Math.round(bal*0.003);
     bal+=i;
